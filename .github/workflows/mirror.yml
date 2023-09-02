@@ -1,0 +1,21 @@
+name: Mirror Commits
+
+on:
+  push:
+    branches:
+      - main # Adjust the branch name if necessary
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v2
+
+    - name: Mirror to destination repository
+      run: |
+        git remote add destination https://github.com/asishrj91/Test2.git
+        git push destination HEAD:main # Adjust the branch name if necessary
+      env:
+        GITHUB_TOKEN: ${{ secrets.MIRROR_TOKEN }}

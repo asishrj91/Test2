@@ -18,4 +18,4 @@ jobs:
         git remote add destination https://github.com/asishrj91/Test2.git
         git push destination HEAD:main # Adjust the branch name if necessary
       env:
-        GITHUB_TOKEN: ${{ secrets.MIRROR_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}

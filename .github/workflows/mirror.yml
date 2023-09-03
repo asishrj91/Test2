@@ -31,7 +31,7 @@ jobs:
           PAT_SOURCE_REPO: ${{ secrets.PAT_TOKEN }}
         
     
-      - name: Move Modified Files to Destination Repo
+      - name: Copy Modified Files to Destination Repo
         run: |
           files_modified=false
       
@@ -39,10 +39,10 @@ jobs:
             dest="destination-repo/$file"
             mkdir -p "$(dirname "$dest")"
             if [ -d "$file" ]; then
-              mv "$file" "$dest"
+              cp -r "$file" "$dest"  # Use "cp -r" to copy directories recursively
               files_modified=true
             elif [ -f "$file" ]; then
-              mv "$file" "$dest"
+              cp "$file" "$dest"
               files_modified=true
             fi
           done < changed-files.txt
@@ -51,10 +51,10 @@ jobs:
             cd destination-repo
             ls -la
             git add .
-            git commit -m "Move modified files"
+            git commit -m "Copy modified files"  # Update commit message if needed
             git push origin main
           fi
-        working-directory: .
+        working-directory: .  # Modify the working directory as needed
         
       - name: List Files in Test2 Repo
         run: |

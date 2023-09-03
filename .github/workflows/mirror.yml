@@ -1,40 +1,18 @@
-name: Mirror Repository
-
 on:
   push:
     branches:
-      - main # You can change this to the branch you want to monitor for changes
+      - main  # Change this to the branch you want to trigger the sync on
 
 jobs:
-  mirror:
+  sync:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out source repository
-      uses: actions/checkout@v2
-      with:
-        repository: asishrj91/Test1 # Replace with your source repository
-        ref: main # Replace with the branch you want to mirror
+      - name: Checkout Source Repository
+        uses: actions/checkout@v2
 
-    - name: Check out destination repository
-      uses: actions/checkout@v2
-      with:
-        repository: asishrj91/Test2 # Replace with your destination repository
-        ref: main # Replace with the branch you want to mirror
-
-    - name: Mirror changes
-      run: |
-        # Sync source to destination, excluding .git directory
-        rsync -av --delete --exclude=.git $GITHUB_WORKSPACE/ $GITHUB_WORKSPACE/../Test2/
-        
-        # Commit and push changes to the destination repository
-        cd $GITHUB_WORKSPACE/../Test2/
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add .
-        git commit -m "Mirror changes from Test1"
-        git push
-
-    - name: Cleanup
-      run: |
-        rm -rf $GITHUB_WORKSPACE/*
+      - name: Push to Destination Repository
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git push --force https://${{ secrets.PAT_SOURCE_REPO }}@github.com/asishrj91/Test2.git HEAD:main

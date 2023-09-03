@@ -28,7 +28,7 @@ jobs:
     
       - name: Clone Destination Repo
         run: |
-          git clone https://$USERNAME:$PAT_TOKEN@github.com/asishrj91/Test2.git destination-repo
+          git clone https://$USERNAME:$PAT_SOURCE_REPO@github.com/asishrj91/Test2.git destination-repo
         env:
           USERNAME: asishrj91
           PAT_SOURCE_REPO: ${{ secrets.PAT_TOKEN }}

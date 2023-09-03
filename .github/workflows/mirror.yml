@@ -36,7 +36,16 @@ jobs:
     
       - name: Move Modified Files to Destination Repo
         run: |
-          xargs -I {} sh -c 'mkdir -p destination-repo/$(dirname {}); mv {} destination-repo/$(dirname {})/' < changed-files.txt
+          while IFS= read -r file; do
+            dest="destination-repo/$file"
+            mkdir -p "$(dirname "$dest")"
+            if [ -d "$file" ]; then
+              mv "$file" "$dest"
+            elif [ -f "$file" ]; then
+              mv "$file" "$dest"
+            fi
+          done < changed-files.txt
+      
           cd destination-repo
           git add .
           git commit -m "Move modified files"

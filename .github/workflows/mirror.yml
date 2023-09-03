@@ -57,3 +57,8 @@ jobs:
             git push origin main
           fi
         working-directory: .
+        
+      - name: List Files in Test2 Repo
+        run: |
+          cd destination-repo
+          ls -la  # List all files and directories in the destination repository (Test2)

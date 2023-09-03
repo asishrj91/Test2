@@ -36,7 +36,7 @@ jobs:
     
       - name: Move Modified Files to Destination Repo
         run: |
-          xargs -I {} sh -c 'mkdir -p destination-repo/$(dirname {}); mv {} destination-repo/{}' < changed-files.txt
+          xargs -I {} sh -c 'mkdir -p destination-repo/$(dirname {}); mv {} destination-repo/$(dirname {})/' < changed-files.txt
           cd destination-repo
           git add .
           git commit -m "Move modified files"

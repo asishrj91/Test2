@@ -49,9 +49,10 @@ jobs:
               files_modified=true
             fi
           done < changed-files.txt
-      
+          echo $files_modified
           if $files_modified; then
             cd destination-repo
+            ls -la
             git add .
             git commit -m "Move modified files"
             git push origin main

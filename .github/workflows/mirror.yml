@@ -42,12 +42,12 @@ jobs:
             if [ -d "$file" ]; then
               cp -r "$file" "$dest"  # Use "cp -r" to copy directories recursively
               files_modified=true
+              echo $files_modified
             elif [ -f "$file" ]; then
               cp "$file" "$dest"
               files_modified=true
             fi
           done < changed-files.txt
-          echo $files_modified
           if $files_modified; then
             cd destination-repo
             ls -la

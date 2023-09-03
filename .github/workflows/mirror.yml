@@ -1,4 +1,4 @@
-name: Move Modified Files
+name: Copy Modified Files
 
 on:
   push:
@@ -6,60 +6,49 @@ on:
       - main
 
 jobs:
-  move-files:
+  copy-files:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-           fetch-depth: 0
-    
+          fetch-depth: 0
+
       - name: Set Up Git
         run: |
           git config --global user.name "asishrj91"
           git config --global user.email "asishrj91@gmail.com"
-    
+
       - name: List Modified Files
         id: git-changes
         run: |
           git diff --name-status ${{ github.event.before }} ${{ github.sha }} > changed-files.txt
           cat changed-files.txt
-    
+
       - name: Clone Destination Repo
         run: |
           git clone https://$USERNAME:$PAT_SOURCE_REPO@github.com/asishrj91/Test2.git destination-repo
         env:
           USERNAME: asishrj91
           PAT_SOURCE_REPO: ${{ secrets.PAT_TOKEN }}
-        
-    
-      - name: Move Modified Files to Destination Repo
+
+      - name: Copy Modified Files to Destination Repo
         run: |
-          files_modified=false
-      
           while IFS= read -r file; do
             dest="destination-repo/$file"
             mkdir -p "$(dirname "$dest")"
-            if [ -d "$file" ]; then
-              mv "$file" "$dest"
-              files_modified=true
-            elif [ -f "$file" ]; then
-              mv "$file" "$dest"
-              files_modified=true
-            fi
+            cp -r "$file" "$dest"  # Use 'cp' to copy files instead of 'mv'
           done < changed-files.txt
-          echo $files_modified
-          if $files_modified; then
-            cd destination-repo
-            ls -la
-            git add .
-            git commit -m "Move modified files"
-            git push origin main
-          fi
-        working-directory: .
-        
+
+      - name: Commit and Push Changes
+        run: |
+          cd destination-repo
+          git add .
+          git commit -m "Copy modified files"
+          git push origin main
+
       - name: List Files in Test2 Repo
         run: |
           cd destination-repo
-          ls -la  # List all files and directories in the destination repository (Test2)
+          ls -la

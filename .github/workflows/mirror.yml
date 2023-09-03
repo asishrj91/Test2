@@ -1,67 +1,40 @@
-name: Move Modified Files
+name: Mirror Repository
+
 on:
   push:
     branches:
-      - main
+      - main # You can change this to the branch you want to monitor for changes
+
 jobs:
-  move-files:
+  mirror:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-           fetch-depth: 0
-    
-      - name: Set Up Git
-        run: |
-          git config --global user.name "asishrj91"
-          git config --global user.email "asishrj91@gmail.com"
-    
-      - name: List Modified Files
-        id: git-changes
-        run: |
-          git diff --name-status ${{ github.event.before }} ${{ github.sha }} > changed-files.txt
-          cat changed-files.txt
-    
-      - name: Clone Destination Repo
-        run: |
-          git clone https://$USERNAME:$PAT_SOURCE_REPO@github.com/asishrj91/Test2.git destination-repo
-        env:
-          USERNAME: asishrj91
-          PAT_SOURCE_REPO: ${{ secrets.PAT_TOKEN }}
+    - name: Check out source repository
+      uses: actions/checkout@v2
+      with:
+        repository: asishrj91/Test1 # Replace with your source repository
+        ref: main # Replace with the branch you want to mirror
+
+    - name: Check out destination repository
+      uses: actions/checkout@v2
+      with:
+        repository: asishrj91/Test2 # Replace with your destination repository
+        ref: main # Replace with the branch you want to mirror
+
+    - name: Mirror changes
+      run: |
+        # Sync source to destination, excluding .git directory
+        rsync -av --delete --exclude=.git $GITHUB_WORKSPACE/ $GITHUB_WORKSPACE/../Test2/
         
-    
-      - name: Copy Modified Files to Destination Repo
-        run: |
-          files_modified=false
-          while IFS= read -r file; do
-            dest="destination-repo/$file"
-            mkdir -p "$(dirname "$dest")"
-            
-            if [ -d "$file" ]; then
-              cp -r "$file" "$dest"  # Use "cp -r" to copy directories recursively
-              files_modified=true
-            elif [ -f "$file" ]; then
-              if [ -d "$(dirname "$dest")" ]; then
-                cp "$file" "$dest"
-                files_modified=true
-              else
-                mkdir -p "$(dirname "$dest")"
-                cp "$file" "$dest"
-                files_modified=true
-              fi
-            fi
-          done < changed-files.txt
-          if $files_modified; then
-            cd destination-repo
-            ls -la
-            git add .
-            git commit -m "Copy modified files"  # Update commit message if needed
-            git push origin main
-          fi
-        working-directory: .  # Modify the working directory as needed
-        
-      - name: List Files in Test2 Repo
-        run: |
-          cd destination-repo
-          ls -la
+        # Commit and push changes to the destination repository
+        cd $GITHUB_WORKSPACE/../Test2/
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git commit -m "Mirror changes from Test1"
+        git push
+
+    - name: Cleanup
+      run: |
+        rm -rf $GITHUB_WORKSPACE/*

@@ -37,6 +37,7 @@ jobs:
       
           while IFS= read -r file; do
             dest="destination-repo/$file"
+            echo $dest
             mkdir -p "$(dirname "$dest")"
             if [ -d "$file" ]; then
               cp -r "$file" "$dest"  # Use "cp -r" to copy directories recursively

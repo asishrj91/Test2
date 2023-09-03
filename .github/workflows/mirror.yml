@@ -34,18 +34,22 @@ jobs:
       - name: Copy Modified Files to Destination Repo
         run: |
           files_modified=false
-      
           while IFS= read -r file; do
             dest="destination-repo/$file"
-            echo $dest
             mkdir -p "$(dirname "$dest")"
+            
             if [ -d "$file" ]; then
               cp -r "$file" "$dest"  # Use "cp -r" to copy directories recursively
               files_modified=true
-              echo $files_modified
             elif [ -f "$file" ]; then
-              cp "$file" "$dest"
-              files_modified=true
+              if [ -d "$(dirname "$dest")" ]; then
+                cp "$file" "$dest"
+                files_modified=true
+              else
+                mkdir -p "$(dirname "$dest")"
+                cp "$file" "$dest"
+                files_modified=true
+              fi
             fi
           done < changed-files.txt
           if $files_modified; then
